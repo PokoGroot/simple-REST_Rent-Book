@@ -7,7 +7,7 @@ module.exports = {
             book_id: req.body.book_id,
             return_date: new Date()
         }
-        returnModel.getLatestBorrowing(data.book_id)
+        returnModel.getLatestRent(data.book_id)
             .then(result => Promise.all([
                 console.log(result[0].trans_id),
                 returnModel.returnBook(result[0].trans_id, data),
@@ -17,6 +17,5 @@ module.exports = {
                 console.log(error)
             })
             .then(result => res.json(result))
-            
     }
 }
