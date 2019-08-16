@@ -1,28 +1,28 @@
 const rentModel = require('../models/rent')
+const bookModel = require('../models/book')
 
 module.exports = {
     rentBook: (req, res) => {
-        const data = {
-            user_id: req.user_id,
+        const transData = {
+            user_id: req.body.user_id,
             book_id: req.body.book_id,
             rent_date: new Date()
         }
 
-        const bookModel = require('../models/book')
-
-        bookModel.getAvailability(data.book_id)
+        bookModel.getAvailability(transData.book_id)
             .then(result => {
-                console.log(data)
-                if(result[0].availability == 1){
+                if (result[0].availability == '1') {
                     return Promise.all([
-                        rentModel.insertTrans(data),
-                        bookModel.setAvailability(data.book_id, 0)
+                        rentModel.insertTrans(transData),
+                        bookModel.setAvailability(transData.book_id, 0)
                     ])
-                }else{
-                    res.json({message : "Book is not available to rent!"})
+                } else {
+                    res.json({ message: 'Book not available yet!' })
                 }
             })
+            .catch(error => {
+                console.log(error)
+            })
             .then(result => res.json(result))
-            .catch(err => console.log(err))
-    }
+        }
 }
