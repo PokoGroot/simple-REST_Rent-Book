@@ -17,5 +17,6 @@ module.exports = {
                 console.log(error)
             })
             .then(result => res.json(result))
+            
     }
 }
