@@ -4,6 +4,6 @@ const Route = express.Router()
 const returnController = require('../controllers/return')
 
 Route
-    .patch('/:book_id', returnController.returnBook)
+    .patch('/', returnController.returnBook)
 
 module.exports = Route

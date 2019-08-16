@@ -1,21 +1,21 @@
 const returnModel = require('../models/return')
+const bookModel = require('../models/book')
 
 module.exports = {
     returnBook: (req, res) => {
         const data = {
+            book_id: req.body.book_id,
             return_date: new Date()
         }
-        const id = req.params.book_id
-
-        const bookModel = require('../models/book')
-
-        returnModel.bookReturn(data, id)
-            .then(result => {
-                return Promise.all([
-                    bookModel.setAvailability(data.book_id, 1),
-                    res.json(result)
-                ])
+        returnModel.getLatestBorrowing(data.book_id)
+            .then(result => Promise.all([
+                console.log(result[0].trans_id),
+                returnModel.returnBook(result[0].trans_id, data),
+                bookModel.setAvailability(data.book_id, 1)
+            ]))
+            .catch(error => {
+                console.log(error)
             })
-            .catch(err => console.log(err))
+            .then(result => res.json(result))
     }
 }
