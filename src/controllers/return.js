@@ -16,6 +16,7 @@ module.exports = {
             .catch(error => {
                 console.log(error)
             })
+            //standar response
             .then(result => res.json(result))
     }
 }

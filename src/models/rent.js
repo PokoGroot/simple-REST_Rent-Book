@@ -7,7 +7,11 @@ module.exports = {
             conn.query('INSERT transaction SET ?',
             data,
             (err, result) => {
-                if (err) { reject(err) } else { resolve(result) }
+                if (!err) { 
+                    resolve(result) 
+                } else { 
+                    reject(err) 
+                }
             })
         })
     }

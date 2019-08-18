@@ -5,19 +5,22 @@ let table = `SELECT book_id, title, description, image, date_released, genre_nam
             ON book.genre_id = genre.genre_id `
 
 module.exports = {
-    //get all book
-    getData: (keyword = null, sort = null, availability = null, dataBegin, pageLimit) => {
+    //get all book based on query
+    getData: (keyword = null, sort = null, availability = null, order = null, dataBegin, pageLimit) => {
         return new Promise((resolve, reject) => {
             const availabilityIsNotNull = availability != null
             const keywordIsNotNull = keyword != null
             const sortIsNotNull = sort != null
+            const orderIsNotNull = order != null
             let query = table
+
             if(availabilityIsNotNull || keywordIsNotNull || sortIsNotNull){
-                query += `WHERE `
-                query += availabilityIsNotNull                     ? `availability = ${availability} `:``
+                query += availabilityIsNotNull || keywordIsNotNull ? `WHERE `:``
+                query += availabilityIsNotNull ? `availability = ${availability} `:``
                 query += availabilityIsNotNull && keywordIsNotNull ? `AND `:``
-                query += keywordIsNotNull                          ? `title LIKE '%${keyword}%' `:''
-                query += sortIsNotNull                             ? `ORDER BY ${sort} `:''
+                query += keywordIsNotNull ? `title LIKE '%${keyword}%' `:''
+                query += sortIsNotNull ? `ORDER BY ${sort} `:''
+                query += orderIsNotNull && sortIsNotNull ? order:''
             }                
 
             conn.query(`${query} LIMIT ?, ?`,
@@ -31,7 +34,7 @@ module.exports = {
             })
         })
     },
-    //add book
+    //add book to db
     addBook: (data) => {
         return new Promise((resolve, reject) => {
             conn.query(' INSERT book SET ? ', 
@@ -45,7 +48,7 @@ module.exports = {
             })
         })
     },
-    //get one book
+    //get book detail
     getOneBook: (id) => {
         return new Promise((resolve, reject) => {
             conn.query('SELECT * FROM book WHERE book_id = ?',
@@ -58,7 +61,7 @@ module.exports = {
             })
         })
     },
-    //update book
+    //update book detail
     updateBook: (data, id) => {
         return new Promise((resolve, reject) => {
             conn.query(`UPDATE book SET ? WHERE book_id = ?`,
@@ -99,7 +102,7 @@ module.exports = {
             })
         })
     },
-    //change availability
+    //change book availability
     setAvailability: (id, availability) => {
         return new Promise((resolve, reject) => {
             conn.query('UPDATE book SET availability = ? where book_id = ?',

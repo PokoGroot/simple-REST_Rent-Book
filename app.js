@@ -25,4 +25,4 @@ app.use('/genre', GenreRoute)
 app.use('/rent', rentRoute)
 app.use('/return', returnRoute)
 
-//body-parser, nodemon, mysql, express, morgan, dotenv
+//body-parser, nodemon, mysql, express, morgan, dotenv, prettier, eslint

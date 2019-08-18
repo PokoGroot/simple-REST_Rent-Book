@@ -1,6 +1,7 @@
 const conn = require('../configs/db')
 
 module.exports = {
+    //get all genre on database
     getGenre: () => {
         return new Promise((resolve, reject) => {
             conn.query(` SELECT * FROM genre `,
@@ -13,6 +14,7 @@ module.exports = {
             })
         })
     },
+    //add genre to database
     addGenre: (data) => {
         return new Promise((resolve, reject) => {
             conn.query(` INSERT genre SET ? `, 
@@ -26,6 +28,7 @@ module.exports = {
             })
         })
     },
+    //update genre
     updateGenre: (name, id) => {
         return new Promise((resolve, reject) => {
             conn.query(` UPDATE genre SET ? WHERE genre_id = ? `,
@@ -39,6 +42,7 @@ module.exports = {
             })
         })
     },
+    //delete genre from database
     deleteGenre: (id) => {
         return new Promise((resolve, reject) => {
             conn.query(` DELETE FROM genre WHERE genre_id = ?`,
