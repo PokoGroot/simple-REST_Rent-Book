@@ -1,21 +1,31 @@
-const jwt = require('jsonwebtoken')
-
+require('dotenv').config()
 module.exports = {
-    auth: (req, res, next) => {
+    verifyTokenMiddleware: (req, res, next) => {
+        const bearerHeader = req.headers['authorization']
+        if (bearerHeader !== undefined) {
+        const jwt = require('jsonwebtoken')
+        const bearer = bearerHeader.split(' ')
+        const token = bearer[1]
         try {
-        const secretKey = process.env.SECRET_KEY
-        const token = req.headers.authorization.split(' ')[1]
-        const decode = jwt.verify(token, secretKey)
-        req.userData = decode
-        next()
-        } catch (error) {
-        res.status(401).json({
-            massage: 'Login first'
-        })
+            const decoded = jwt.verify(token, process.env.JWT_SECRET)
+            if (decoded) {
+            console.log(decoded)
+            req.user_id = decoded.id
+            req.user_name = decoded.username
+            req.user_fullname = decoded.fullname
+            req.user_email = decoded.email
+            req.level = decoded.level
+            next()
+            } else { throw new Error(decoded) }
+        } catch (err) {
+            console.error(err)
+            res.sendStatus(403)
         }
+        } else { 
+        console.error("no bearer", bearerHeader)
+        res.sendStatus(403) }
     },
-    checkid: (req, res) => {
-        const data = req.userData.dataUser
-        res.json({ Email: data })
+    verifyAdminPrevilege: (req, res, next) => {
+        if (req.level === 'admin') { next() } else { res.sendStatus(403) }
     }
 }

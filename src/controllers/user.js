@@ -1,52 +1,149 @@
-const modelUser = require('../models/users')
-const helper = require('../helpers/helpers')
-const jwt = require('jsonwebtoken')
+require('dotenv').config()
+const modelUsers = require('../models/users')
+const responses = require('../responses')
 
-module.exports = {
-    getData: (req, res) => {
-        modelUser.getData()
-        .then(result => res.json({ success: true, message: 'succes borrow', data: result, error: '' }))
-        .catch(err => res.json({ success: false, message: 'fail borrow', data: '', error: err }))
-    },
-    register: (req, res) => {
-        const secret = helper.generateSecret(18)
-        const passwordHash = helper.setPassword(req.body.password, secret)
-        const data = {
-            email: req.body.email,
-            password: passwordHash.password,
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            secret_key: passwordHash.secret
+const isFormValid = (data) => {
+    const Joi = require('@hapi/joi')
+    const schema = Joi.object().keys({
+        fullname: Joi.string().required(),
+        username: Joi.string().alphanum().min(3).max(30).required(),
+        password: Joi.string().min(8).required(),
+        email: Joi.string().email({ minDomainSegments: 2 }),
+        level: Joi.string()
+    })
+    const result = Joi.validate(data, schema)
+    if (result.error == null) return true
+    else return false
+    }
+
+    const hash = (string) => {
+    const crypto = require('crypto-js')
+    return crypto.SHA256(string)
+        .toString(crypto.enc.Hex)
+    }
+
+    module.exports = {
+    registerUser: (req, res) => {
+        const userData = {
+        fullname: req.body.fullname,
+        username: req.body.username,
+        password: req.body.password,
+        email: req.body.email,
+        level: 'regular'
         }
-        modelUser.registerUser(data)
-        .then(result => {
-            delete data.secret_key
-            if (result.affectedRows === 1) {
-            delete data.password
-            res.json({ success: true, message: 'succes register', data: data, error: '' })
-            } else {
-            res.json({ success: false, message: 'fail register', data: data, error: 'Data already existed' })
-            }
-        })
-        .catch(err => res.json({ success: false, message: 'Data already existed', data: data, error: err }))
-    },
-    signin: (req, res) => {
-        const email = req.body.email
-        const password = req.body.password
 
-        modelUser.signinUser(email)
+        if (!isFormValid(userData)) {
+        return responses.dataManipulationResponse(res, 200, 'Data is not valid')
+        }
+
+        userData.password = hash(userData.password)
+
+        modelUsers.getAllUsersWithEmailOrUsername(userData.email, userData.username)
         .then(result => {
-            const dataUser = result[0]
-            const usePassword = helper.setPassword(password, dataUser.secret_key)
-            if (usePassword.password === dataUser.Password) {
-            delete dataUser.secret_key
-            delete dataUser.Password
-            const token = jwt.sign({ dataUser }, process.env.SECRET_KEY)
-            res.json({ success: true, message: 'succes register', data: { token: `Bearer ${token}` }, error: '' })
-            } else {
-            res.json({ success: false, message: 'email or password false', data: [email, password], error: 'data not match' })
-            }
+            if (result.length === 0) return modelUsers.registerUser(userData)
+            else return responses.dataManipulationResponse(res, 200, 'Username or email already registered')
         })
-        .catch((err) => res.json({ success: false, message: 'email or password false', data: [email, password], error: err }))
+        .then(result => {
+            console.log(result)
+            return responses.dataManipulationResponse(res, 200, 'Success registering new user', { id: result.insertId, username: userData.username })})
+        .catch(err => {
+            console.error(err)
+            return responses.dataManipulationResponse(res, 200, 'Failed registering user', err)
+        })
+    },
+    registerAdmin: (req, res) => {
+        const userData = {
+        fullname: req.body.fullname,
+        username: req.body.username,
+        password: req.body.password,
+        email: req.body.email,
+        level: 'admin'
+        }
+
+        if (!isFormValid(userData)) {
+        return res.json({ message: 'user data not valid' })
+        }
+
+        userData.password = hash(userData.password)
+
+        modelUsers.getAllUsersWithEmailOrUsername(userData.email, userData.username)
+        .then(result => {
+            if (result.length === 0) return modelUsers.registerUser(userData)
+            else return responses.dataManipulationResponse(res, 200, 'Username or email already registered')
+        })
+        .then(result => responses.dataManipulationResponse(res, 201, 'Success registering new user', { id: result[0].insertId, username: userData.username }))
+        .catch(err => {
+            console.error(err)
+            return responses.dataManipulationResponse(res, 200, 'Failed registering user', err)
+        })
+    },
+    login: (req, res) => {
+        const email = req.body.email
+        const hashedPassword = hash(req.body.password)
+
+        modelUsers.login(email, hashedPassword)
+        .then(result => {
+            if (result.length !== 0) {
+            const jwt = require('jsonwebtoken')
+            const payload = {
+                id: result[0].id,
+                username: result[0].username,
+                fullname: result[0].fullname,
+                email: result[0].email,
+                level: result[0].level
+            }
+            jwt.sign(payload, process.env.JWT_SECRET, (err, token) => {
+                if (err) {
+                console.error(err)
+                }
+                res.setHeader('Set-Cookie', `Authorization=Bearer ${token}`)
+                res.json({ token: `Bearer ${token}` })
+            })
+            } else { return responses.dataManipulationResponse(res, 200, 'Username or email is wrong') }
+        })
+        .catch(err => {
+            console.error(err)
+            return responses.dataManipulationResponse(res, 500, err)
+        })
+    },
+    getAllUsers: (req, res) => {
+        const keyword = req.query.search
+        const sort = req.query.sortby
+        const page = req.query.page || 1
+        const limit = req.query.limit || 10
+        const start = (Number(page) - 1) * limit
+
+        modelUsers.getAllUsers(keyword, sort, start, limit)
+        .then(result => {
+            if (result.length !== 0) return responses.getDataResponse(res, 200, result, result.length, null)
+            else return responses.getDataResponse(res, 200, null, null, null, 'No users found')
+        })
+        .catch(err => {
+            console.error(err)
+            return responses.getDataResponse(res, 500, err)
+        })
+    },
+    getOneUser: (req, res) => {
+        const id = req.params.id
+
+        modelUsers.getOneUser(id)
+        .then(result => {
+            if (result.length !== 0) return responses.getDataResponse(res, 200, result, result.length, null)
+            else return responses.getDataResponse(res, 200, null, null, null, 'No users found')
+        })
+        .catch(err => {
+            console.error(err)
+            return responses.getDataResponse(res, 500, err)
+        })
+    },
+    getUserProfile: (req, res) => {
+        const userProfile = {
+        id: req.user_id,
+        username: req.user_name,
+        fullname: req.user_fullname,
+        email: req.user_email,
+        level: req.level
+        }
+        return responses.getDataResponse(res, 200, userProfile)
     }
 }
