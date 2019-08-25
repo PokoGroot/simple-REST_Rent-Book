@@ -9,5 +9,6 @@ Route
     .post('/', BookController.addBook)
     .patch('/:id', BookController.updateBook)
     .delete('/:id', BookController.deleteBook)
-
+    .get('/y/year', BookController.getYearBook)
+    .get('/g/genre', BookController.getBookByGenre)
 module.exports = Route

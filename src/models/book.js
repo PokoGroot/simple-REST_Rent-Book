@@ -51,7 +51,7 @@ module.exports = {
     //get book detail
     getOneBook: (id) => {
         return new Promise((resolve, reject) => {
-            conn.query('SELECT * FROM book WHERE book_id = ?',
+            conn.query(`SELECT * FROM book WHERE book_id = ?`,
             id,
             (err, result) =>{
                 if(err) 
@@ -114,5 +114,28 @@ module.exports = {
                     resolve(result)
             })
         })
+    },
+    //get book year release
+    getYearBook: () => {
+        return new Promise((resolve, reject) => {
+            conn.query('SELECT YEAR(date_released) AS year FROM book GROUP BY year',
+            (err, result) =>{
+                if(err) 
+                    reject(err)
+                else 
+                    resolve(result)
+            })
+        })
+    },
+    //get book by genre
+    getBookByGenre: (genre) => {
+        conn.query('SELECT * FROM book WHERE genre_id = ?'),
+        genre,
+        (err, res) => {
+            if(err)
+                reject(err)
+            else
+                resolve(result)
+        }
     }
 }
