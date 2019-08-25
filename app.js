@@ -7,8 +7,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const BookRoute = require('./src/routes/book')
 const GenreRoute = require('./src/routes/genre')
-const rentRoute = require('./src/routes/rent')
-const returnRoute = require('./src/routes/return')
+const transactionRoute = require('./src/routes/transaction')
 
 const port = process.env.SERVER_PORT || 3000
 
@@ -24,7 +23,6 @@ app.use(bodyParser.urlencoded({extended: false}))
 
 app.use('/book', BookRoute)
 app.use('/genre', GenreRoute)
-app.use('/rent', rentRoute)
-app.use('/return', returnRoute)
+app.use('/trans', transactionRoute)
 
 //body-parser, nodemon, mysql, express, morgan, dotenv, prettier, eslint
