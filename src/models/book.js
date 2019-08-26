@@ -128,14 +128,16 @@ module.exports = {
         })
     },
     //get book by genre
-    getBookByGenre: (genre) => {
-        conn.query('SELECT * FROM book WHERE genre_id = ?'),
-        genre,
-        (err, res) => {
-            if(err)
-                reject(err)
-            else
-                resolve(result)
-        }
+    BookByGenre: (genre_name) => {
+        return new Promise((resolve, reject) => {
+        conn.query(`${table} WHERE genre_name = ?`,
+        genre_name,
+        (err, result) => {
+                if(err)
+                    reject(err)
+                else
+                    resolve(result)
+            })
+        })
     }
 }

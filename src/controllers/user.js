@@ -1,6 +1,6 @@
 require('dotenv').config()
-const modelUsers = require('../models/users')
-const responses = require('../responses')
+const userModel = require('../models/user')
+const responses = require('../helpers/responses')
 
 const isFormValid = (data) => {
     const Joi = require('@hapi/joi')
@@ -14,61 +14,60 @@ const isFormValid = (data) => {
     const result = Joi.validate(data, schema)
     if (result.error == null) return true
     else return false
-    }
+}
 
-    const hash = (string) => {
+const hash = (string) => {
     const crypto = require('crypto-js')
     return crypto.SHA256(string)
         .toString(crypto.enc.Hex)
-    }
+}
 
-    module.exports = {
+module.exports = {
     registerUser: (req, res) => {
         const userData = {
-        fullname: req.body.fullname,
-        username: req.body.username,
-        password: req.body.password,
-        email: req.body.email,
-        level: 'regular'
+            fullname: req.body.fullname,
+            username: req.body.username,
+            password: req.body.password,
+            email: req.body.email,
+            level: 'regular'
         }
 
         if (!isFormValid(userData)) {
-        return responses.dataManipulationResponse(res, 200, 'Data is not valid')
+            return responses.dataResponseEdit(res, 200, 'Data is not valid')
         }
 
         userData.password = hash(userData.password)
 
-        modelUsers.getAllUsersWithEmailOrUsername(userData.email, userData.username)
+        userModel.getAllUsersWithEmailOrUsername(userData.email, userData.username)
         .then(result => {
-            if (result.length === 0) return modelUsers.registerUser(userData)
-            else return responses.dataManipulationResponse(res, 200, 'Username or email already registered')
+            if (result.length === 0) return userModel.registerUser(userData)
+            else return responses.dataResponseEdit(res, 200, 'Username or email already registered')
         })
         .then(result => {
-            console.log(result)
-            return responses.dataManipulationResponse(res, 200, 'Success registering new user', { id: result.insertId, username: userData.username })})
+            return responses.dataResponseEdit(res, 200, 'Success registering new user', { id: result.insertId, username: userData.username })})
         .catch(err => {
             console.error(err)
-            return responses.dataManipulationResponse(res, 200, 'Failed registering user', err)
+            return responses.dataResponseEdit(res, 200, 'Failed registering user', err)
         })
     },
     registerAdmin: (req, res) => {
         const userData = {
-        fullname: req.body.fullname,
-        username: req.body.username,
-        password: req.body.password,
-        email: req.body.email,
-        level: 'admin'
+            fullname: req.body.fullname,
+            username: req.body.username,
+            password: req.body.password,
+            email: req.body.email,
+            level: 'admin'
         }
 
         if (!isFormValid(userData)) {
-        return res.json({ message: 'user data not valid' })
+            return res.json({ message: 'user data not valid' })
         }
 
         userData.password = hash(userData.password)
 
-        modelUsers.getAllUsersWithEmailOrUsername(userData.email, userData.username)
+        userModel.getAllUsersWithEmailOrUsername(userData.email, userData.username)
         .then(result => {
-            if (result.length === 0) return modelUsers.registerUser(userData)
+            if (result.length === 0) return userModel.registerUser(userData)
             else return responses.dataManipulationResponse(res, 200, 'Username or email already registered')
         })
         .then(result => responses.dataManipulationResponse(res, 201, 'Success registering new user', { id: result[0].insertId, username: userData.username }))
@@ -81,7 +80,7 @@ const isFormValid = (data) => {
         const email = req.body.email
         const hashedPassword = hash(req.body.password)
 
-        modelUsers.login(email, hashedPassword)
+        userModel.login(email, hashedPassword)
         .then(result => {
             if (result.length !== 0) {
             const jwt = require('jsonwebtoken')
@@ -113,7 +112,7 @@ const isFormValid = (data) => {
         const limit = req.query.limit || 10
         const start = (Number(page) - 1) * limit
 
-        modelUsers.getAllUsers(keyword, sort, start, limit)
+        userModel.getAllUsers(keyword, sort, start, limit)
         .then(result => {
             if (result.length !== 0) return responses.getDataResponse(res, 200, result, result.length, null)
             else return responses.getDataResponse(res, 200, null, null, null, 'No users found')
@@ -126,7 +125,7 @@ const isFormValid = (data) => {
     getOneUser: (req, res) => {
         const id = req.params.id
 
-        modelUsers.getOneUser(id)
+        userModel.getOneUser(id)
         .then(result => {
             if (result.length !== 0) return responses.getDataResponse(res, 200, result, result.length, null)
             else return responses.getDataResponse(res, 200, null, null, null, 'No users found')

@@ -41,7 +41,7 @@ module.exports = {
             })
     },
     getOneBook: (req, res) => {
-        const id = req.params.id
+        let id = req.params.id
 
         modelBook.getOneBook(id)
             .then(result => {
@@ -94,17 +94,17 @@ module.exports = {
                 return responses.getDataResponse(res, 500, err)
             })
     },
-    //bug (can't show data)
     getBookByGenre: (req, res) => {
-        const genre = req.params.genre_id
-        modelBook.getBookByGenre(genre)
+        let genre_name = req.params.name
+
+        modelBook.BookByGenre(genre_name)
             .then(result => {
-                if (result.length !== 0) return responses.getDataResponse(res, 200, result, result.length)
-                else return responses.getDataResponse(res, 200, null, null, null, 'Books not found')
+                if (result.lenght != 0) return responses.getDataResponse(res, 200, result, result.lenght)
+                else return responses.getDataResponse(res, 200, null, null, null, 'Book not found by this genre!')
             })
             .catch(err => {
                 console.error(err)
-                return responses.getDataResponse(res, 500, err)
+                return responses.getDataResponse(res, 200, err)
             })
     }
 
