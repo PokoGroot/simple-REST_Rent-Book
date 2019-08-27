@@ -91,18 +91,19 @@ module.exports = {
                 email: result[0].email,
                 level: result[0].level
             }
-            jwt.sign(payload, process.env.JWT_SECRET, (err, token) => {
+            jwt.sign(payload, process.env.JWT_SECRET,
+                (err, token) => {
                 if (err) {
-                console.error(err)
+                    console.error(err)
                 }
-                res.setHeader('Set-Cookie', `Authorization=Bearer ${token}`)
-                res.json({ token: `Bearer ${token}` })
+                    res.setHeader('Set-Cookie', `Authorization=Bearer ${token}`)
+                    res.json({ token: `Bearer ${token}` })
             })
-            } else { return responses.dataManipulationResponse(res, 200, 'Username or email is wrong') }
+            } else { return responses.dataResponseEdit(res, 200, 'Username or email is wrong') }
         })
         .catch(err => {
             console.error(err)
-            return responses.dataManipulationResponse(res, 500, err)
+            return responses.dataResponseEdit(res, 500, err)
         })
     },
     getAllUsers: (req, res) => {
