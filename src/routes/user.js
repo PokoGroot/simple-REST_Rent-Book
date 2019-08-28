@@ -5,9 +5,9 @@ const Auth = require('../middleware/auth')
 const UserController = require('../controllers/user')
 
 Route
-    .get('/', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, UserController.getAllUsers)
-    .get('/profile', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, UserController.getUserProfile)
-    .get('/:id', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, UserController.getOneUser)
+    .get('/', Auth.verifyTokenMiddleware, UserController.getAllUsers)
+    .get('/profile', Auth.verifyTokenMiddleware, UserController.getUserProfile)
+    .get('/:id', Auth.verifyTokenMiddleware, UserController.getOneUser)
     .post('/register/admin', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, UserController.registerAdmin)
     .post('/register', UserController.registerUser)
     .post('/login', UserController.login)

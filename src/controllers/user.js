@@ -33,7 +33,7 @@ module.exports = {
         }
 
         if (!isFormValid(userData)) {
-            return responses.dataResponseEdit(res, 200, 'Data is not valid')
+            return responses.dataResponseEdit(res, 401, 'Data is not valid')
         }
 
         userData.password = hash(userData.password)
@@ -41,13 +41,13 @@ module.exports = {
         userModel.getAllUsersWithEmailOrUsername(userData.email, userData.username)
         .then(result => {
             if (result.length === 0) return userModel.registerUser(userData)
-            else return responses.dataResponseEdit(res, 200, 'Username or email already registered')
+            else return responses.dataResponseEdit(res, 403, 'Username or email already registered')
         })
         .then(result => {
-            return responses.dataResponseEdit(res, 200, 'Success registering new user', { id: result.insertId, username: userData.username })})
+            return responses.dataResponseEdit(res, 201, 'Success registering new user', { id: result.insertId, username: userData.username })})
         .catch(err => {
             console.error(err)
-            return responses.dataResponseEdit(res, 200, 'Failed registering user', err)
+            return responses.dataResponseEdit(res, 400, 'Failed registering user', err)
         })
     },
     registerAdmin: (req, res) => {
@@ -68,12 +68,12 @@ module.exports = {
         userModel.getAllUsersWithEmailOrUsername(userData.email, userData.username)
         .then(result => {
             if (result.length === 0) return userModel.registerUser(userData)
-            else return responses.dataManipulationResponse(res, 200, 'Username or email already registered')
+            else return responses.dataResponseEdit(res, 200, 'Username or email already registered')
         })
-        .then(result => responses.dataManipulationResponse(res, 201, 'Success registering new user', { id: result[0].insertId, username: userData.username }))
+        .then(result => responses.dataResponseEdit(res, 201, 'Success registering new user', { id: result[0].insertId, username: userData.username }))
         .catch(err => {
             console.error(err)
-            return responses.dataManipulationResponse(res, 200, 'Failed registering user', err)
+            return responses.dataResponseEdit(res, 200, 'Failed registering user', err)
         })
     },
     login: (req, res) => {
@@ -97,7 +97,7 @@ module.exports = {
                     res.setHeader('Set-Cookie', `Authorization=Bearer ${token}`)
                     res.json({ token: `Bearer ${token}` })
             })
-            } else { return responses.dataResponseEdit(res, 200, 'Username or email is wrong') }
+            } else { return responses.dataResponseEdit(res, 401, 'Username or email is wrong') }
         })
         .catch(err => {
             console.error(err)
@@ -136,11 +136,11 @@ module.exports = {
     },
     getUserProfile: (req, res) => {
         const userProfile = {
-        id: req.user_id,
-        username: req.user_name,
-        fullname: req.user_fullname,
-        email: req.user_email,
-        level: req.level
+            id: req.user_id,
+            username: req.name,
+            fullname: req.fullname,
+            email: req.email,
+            level: req.level
         }
         return responses.getDataResponse(res, 200, userProfile)
     }
