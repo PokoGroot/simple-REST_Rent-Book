@@ -9,13 +9,10 @@ module.exports = {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
             if (decoded) {
-            console.log(decoded)
-            req.user_id = decoded.id
-            req.user_name = decoded.username
-            req.user_fullname = decoded.fullname
-            req.user_email = decoded.email
-            req.level = decoded.level
-            next()
+                req.user_id = decoded.id
+                req.user_email = decoded.email
+                req.level = decoded.level
+                next()
             } else { throw new Error(decoded) }
         } catch (err) {
             console.error(err)

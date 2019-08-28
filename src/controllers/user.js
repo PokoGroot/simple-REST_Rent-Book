@@ -86,8 +86,6 @@ module.exports = {
             const jwt = require('jsonwebtoken')
             const payload = {
                 id: result[0].id,
-                username: result[0].username,
-                fullname: result[0].fullname,
                 email: result[0].email,
                 level: result[0].level
             }

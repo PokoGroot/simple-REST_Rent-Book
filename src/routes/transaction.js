@@ -2,13 +2,14 @@ const express = require('express')
 const Route = express.Router()
 
 const TransactionController = require('../controllers/transaction')
+const Auth = require('../middleware/auth')
 
 Route
-    //get all trans, get one trans, get latest borrow by ID, delete borrow
-    .patch('/', TransactionController.returnBook)
-    .post('/', TransactionController.rentBook)
-    .get('/', TransactionController.getAllBorrowing)
-    .get('/:id', TransactionController.getOneBorrowing)
-    .delete('/:id', TransactionController.deleteBorrowing)
+    //get latest borrow by ID
+    .patch('/', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, TransactionController.returnBook)
+    .post('/', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.rentBook)
+    .get('/', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.getAllBorrowing)
+    .get('/:id', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.getOneBorrowing)
+    .delete('/:id', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.deleteBorrowing)
 
 module.exports = Route
