@@ -6,16 +6,22 @@ let table = `SELECT book_id, title, description, image, date_released, genre_nam
 
 module.exports = {
     //get all book based on query
-    getData: (keyword = null, sort = null, availability = null, order = null, dataBegin, pageLimit) => {
+    getData: (keyword = null, sort = null, availability = null, order = null, genre_id = null, year = null, dataBegin, pageLimit) => {
         return new Promise((resolve, reject) => {
             const availabilityIsNotNull = availability != null
             const keywordIsNotNull = keyword != null
             const sortIsNotNull = sort != null
             const orderIsNotNull = order != null
+            const genreIsNotNull = genre_id != null
+            const yearIsNotNull = year != null
             let query = table
 
-            if(availabilityIsNotNull || keywordIsNotNull || sortIsNotNull){
-                query += availabilityIsNotNull || keywordIsNotNull ? `WHERE `:``
+            if(availabilityIsNotNull || keywordIsNotNull || sortIsNotNull || genreIsNotNull || yearIsNotNull){
+                query += availabilityIsNotNull || keywordIsNotNull || genreIsNotNull || yearIsNotNull ? `WHERE `:``
+                query += yearIsNotNull ? `YEAR(date-released) = ${year} ` : ``
+                query += yearIsNotNull && genreIsNotNull || yearIsNotNull && availabilityIsNotNull || yearIsNotNull && keywordIsNotNull || genreIsNotNull && availabilityIsNotNull || genreIsNotNull && keywordIsNotNull ? `AND `:``
+                query += genreIsNotNull ? `book.genre_id = ${genre_id} ` : ``
+                query += genreIsNotNull && availabilityIsNotNull || genreIsNotNull && keywordIsNotNull ? `AND `:``
                 query += availabilityIsNotNull ? `availability = ${availability} `:``
                 query += availabilityIsNotNull && keywordIsNotNull ? `AND `:``
                 query += keywordIsNotNull ? `title LIKE '%${keyword}%' `:''

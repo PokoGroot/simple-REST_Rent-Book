@@ -7,11 +7,13 @@ module.exports = {
         const sort = req.query.sortby
         const availability = req.query.availability
         const order = req.query.order || 'ASC '
+        const genre_id = req.query.genre_id
+        const year = req.query.year
         let pageLimit = parseInt(req.query.limit) || 12
         let activePage = req.query.page || 1
         let dataBegin = (pageLimit * activePage) - pageLimit
 
-        modelBook.getData(keyword, sort, availability, order, dataBegin, pageLimit)
+        modelBook.getData(keyword, sort, availability, order, genre_id, year, dataBegin, pageLimit)
             .then(result => {
                 if (result.lenght != 0) return responses.getDataResponse(res, 200, result, result.length, activePage)
                 else return responses.getDataResponse(res, 200, null, null, null, 'Book not found!')
