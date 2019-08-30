@@ -108,6 +108,19 @@ module.exports = {
                 console.error(err)
                 return responses.getDataResponse(res, 200, err)
             })
+    },
+    getBookByYear: (req, res) => {
+        let year = req.params.year
+
+        modelBook.BookByYear(year)
+            .then(result => {
+                if (result.lenght != 0) return responses.getDataResponse(res, 200, result, result.lenght)
+                else return responses.getDataResponse(res, 200, null, null, null, 'Book not found by this year!')
+            })
+            .catch(err => {
+                console.error(err)
+                return responses.getDataResponse(res, 200, err)
+            })
     }
 
 }

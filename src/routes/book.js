@@ -12,5 +12,6 @@ Route
     .delete('/:id', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, BookController.deleteBook)
     .get('/y/year', BookController.getYearBook)
     .get('/g/genre/:name', BookController.getBookByGenre)
+    .get('/y/year/:year', BookController.getBookByYear)
     //get total book, popular book, get book by year
 module.exports = Route

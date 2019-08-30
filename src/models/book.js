@@ -145,5 +145,17 @@ module.exports = {
                     resolve(result)
             })
         })
+    },
+    BookByYear: (year) => {
+        return new Promise((resolve, reject) => {
+        conn.query(`${table} WHERE YEAR(date_released) = ?`,
+        year,
+        (err, result) => {
+                if(err)
+                    reject(err)
+                else
+                    resolve(result)
+            })
+        })
     }
 }
