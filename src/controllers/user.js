@@ -101,7 +101,7 @@ module.exports = {
                     res.setHeader('Set-Cookie', `Authorization=Bearer ${token}`)
                     res.json({ token: `Bearer ${token}` })
             })
-            } else { return responses.dataResponseEdit(res, 401, 'Username or email is wrong') }
+            } else { return responses.dataResponseEdit(res, 401, 'Username or password is wrong!') }
         })
         .catch(err => {
             console.error(err)
@@ -146,8 +146,6 @@ module.exports = {
             email: req.user_email,
             level: req.level
         }
-        console.log(req)
-        console.log(userProfile)
         return responses.getDataResponse(res, 200, userProfile)
     }
 }
