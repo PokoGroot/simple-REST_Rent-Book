@@ -11,6 +11,8 @@ module.exports = {
             if (decoded) {
                 req.user_id = decoded.id
                 req.user_email = decoded.email
+                req.user_fullname = decoded.fullname
+                req.user_username = decoded.username
                 req.level = decoded.level
                 next()
             } else { throw new Error(decoded) }

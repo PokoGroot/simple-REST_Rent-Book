@@ -57,7 +57,7 @@ module.exports = {
     //get book detail
     getOneBook: (id) => {
         return new Promise((resolve, reject) => {
-            conn.query(`SELECT * FROM book WHERE book_id = ?`,
+            conn.query(`SELECT book.*,genre.genre_name FROM book JOIN genre ON genre.genre_id = book.genre_id WHERE book_id = ?`,
             id,
             (err, result) =>{
                 if(err) 

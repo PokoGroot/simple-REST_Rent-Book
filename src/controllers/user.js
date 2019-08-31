@@ -85,10 +85,14 @@ module.exports = {
             if (result.length !== 0) {
             const jwt = require('jsonwebtoken')
             const payload = {
-                id: result[0].id,
+                id: result[0].user_id,
                 email: result[0].email,
-                level: result[0].level
+                level: result[0].level,
+                username: result[0].username,
+                fullname: result[0].fullname,
             }
+            console.log(result)
+            console.log(payload)
             jwt.sign(payload, process.env.JWT_SECRET,
                 (err, token) => {
                 if (err) {
@@ -137,11 +141,13 @@ module.exports = {
     getUserProfile: (req, res) => {
         const userProfile = {
             id: req.user_id,
-            username: req.name,
-            fullname: req.fullname,
-            email: req.email,
+            username: req.user_username,
+            fullname: req.user_fullname,
+            email: req.user_email,
             level: req.level
         }
+        console.log(req)
+        console.log(userProfile)
         return responses.getDataResponse(res, 200, userProfile)
     }
 }
