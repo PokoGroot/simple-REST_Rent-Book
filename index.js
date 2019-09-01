@@ -11,11 +11,11 @@ const GenreRoute = require('./src/routes/genre')
 const TransactionRoute = require('./src/routes/transaction')
 const UserRoute = require('./src/routes/user')
 
-const port = process.env.SERVER_PORT || 3000
+const PORT = process.env.PORT || 3000
 
 //port declaration
-app.listen(port, () => {
-    console.log(`server running on port ${port}`)
+app.listen(PORT, () => {
+    console.log(`server running on port ${PORT}`)
 })
 
 app.use(cors())
