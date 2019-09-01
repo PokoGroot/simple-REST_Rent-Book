@@ -7,7 +7,7 @@ module.exports = {
         const bearer = bearerHeader.split(' ')
         const token = bearer[1]
         try {
-            const decoded = jwt.verify(token, "B18JK")
+            const decoded = jwt.verify(token, 'B18JK')
             if (decoded) {
                 req.user_id = decoded.id
                 req.user_email = decoded.email

@@ -93,7 +93,7 @@ module.exports = {
             }
             console.log(result)
             console.log(payload)
-            jwt.sign(payload, process.env.JWT_SECRET,
+            jwt.sign(payload, "B18JK",
                 (err, token) => {
                 if (err) {
                     console.error(err)
