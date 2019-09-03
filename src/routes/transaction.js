@@ -6,6 +6,7 @@ const Auth = require('../middleware/auth')
 
 Route
     //get latest borrow by ID
+    .patch('/user', Auth.verifyTokenMiddleware, TransactionController.rentBookByUser)
     .patch('/', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, TransactionController.returnBook)
     .post('/', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.rentBook)
     .get('/', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.getAllBorrowing)

@@ -3,31 +3,65 @@ const bookModel = require('../models/book')
 const response = require('../helpers/responses')
 
 module.exports = {
+    rentBookByUser: (req, res) => {
+        //if book is available then user can request to admin to rent book then set available to 2(pending)
+        const transData = {
+            user_id: req.body.user_id,
+            book_id: req.body.book_id
+        }
+
+        bookModel.getAvailability(transData.book_id)
+            .then(result => {
+                if (result[0].availability == '1') {
+                    return bookModel.setAvailability(transData.book_id, 2)
+                }
+            })
+            .then(result => {
+                return response.dataResponseEdit(res, 201, `You request to borrow this book!`, transData)
+            })
+            .catch(err => {
+                console.error(err)
+                return response.dataResponseEdit(res, 500, 'Failed to request this book!', err)
+            })
+    },
     rentBook: (req, res) => {
         const transData = {
             user_id: req.body.user_id,
             book_id: req.body.book_id,
             rent_date: new Date()
         }
-
-        bookModel.getAvailability(transData.book_id)
-            .then(result => {
-                if (result[0].availability == '1') {
-                    return Promise.all([
-                        transactionModel.insertTrans(transData),
-                        bookModel.setAvailability(transData.book_id, 0)
-                    ])
-                } else {
-                    return response.dataResponseEdit(res, 200, 'Book is not available yet!')
-                }
-            })
-            .then(result => {
-                return response.dataResponseEdit(res, 201, 'You borrowed this book!', transData)
-            })
-            .catch(err => {
-                console.error(err)
-                return response.dataResponseEdit(res, 500, 'Failed to borrow this book!', err)
-            })
+        //parameter decline/accept
+        const adminInput = req.body.admin_input
+        // admin can accept/decline request by user(set availability to 1 or 0),if admin accept then add detail transaction
+        if(adminInput == '0') {
+            bookModel.setAvailability(transData.book_id, 1)
+                .then(result => {
+                    return response.dataResponseEdit(res, 200, `You rejected request by ${transData.user_id}`)
+                })
+                .catch(err => {
+                    console.error(err)
+                    return response.dataResponseEdit(res, 500, 'Failed to request this book!', err)
+                })
+        } else if (adminInput == '1') {
+            bookModel.getAvailability(transData.book_id)
+                .then(result => {
+                    if (result[0].availability == '2') {
+                        return Promise.all([
+                            transactionModel.insertTrans(transData),
+                            bookModel.setAvailability(transData.book_id, 0)
+                        ])
+                    } else {
+                        return response.dataResponseEdit(res, 200, 'Book is not available yet!')
+                    }
+                })
+                .then(result => {
+                    return response.dataResponseEdit(res, 201, `${transData.user_id} borrowed this book!`, transData)
+                })
+                .catch(err => {
+                    console.error(err)
+                    return response.dataResponseEdit(res, 500, 'Failed to borrow this book!', err)
+                })
+        }
     },
     returnBook: (req, res) => {
         const data = {
