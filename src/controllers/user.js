@@ -91,8 +91,6 @@ module.exports = {
                 username: result[0].username,
                 fullname: result[0].fullname,
             }
-            console.log(result)
-            console.log(payload)
             jwt.sign(payload, "B18JK",
                 (err, token) => {
                 if (err) {

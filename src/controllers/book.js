@@ -1,5 +1,7 @@
 const modelBook = require('../models/book')
 const responses = require('../helpers/responses')
+const multer = require('../middleware/multer')
+const cloudinaryConfig = require('../configs/cloudinaryConfig')
 
 module.exports = {
     getAll: (req, res) => {
@@ -24,23 +26,39 @@ module.exports = {
             })
     },
     addBook: (req, res) => {
-        const data = {
-            title: req.body.title,
-            description: req.body.description,
-            image: req.body.image,
-            date_released: req.body.date_released,
-            genre_id: req.body.genre_id,
-            availability: req.body.availability
+        const imageData = {
+            image: req.file
         }
-        modelBook.addBook(data)
-            .then(result => {
-                // data.id = id
-                return responses.dataResponseEdit(res, 201, 'Success inserting data', data)
-            })
-            .catch(err => {
-                console.error(err)
-                return responses.dataResponseEdit(res, 500, 'Failed to insert data', err)
-            })
+        if(imageData.image) {
+            const file = multer.dataUri(req).content
+    
+            return cloudinaryConfig.uploader.upload(file)
+                .then((result) => {
+                    const data = {
+                        title: req.body.title,
+                        description: req.body.description,
+                        image: result.url,
+                        date_released: req.body.date_released,
+                        genre_id: req.body.genre_id,
+                        availability: req.body.availability
+                    }
+                    modelBook.addBook(data)
+                        .then(result => {
+                            // data.id = id
+                            return responses.dataResponseEdit(res, 201, 'Success inserting data', data)
+                        })
+                        .catch(err => {
+                            console.error(err)
+                            return responses.dataResponseEdit(res, 500, 'Failed to insert data', err)
+                        })
+                })
+                .catch((err) => res.status(400).json({
+                    messge: 'someting went wrong while processing your request',
+                    data: {
+                        err
+                    }
+                }))
+        }
     },
     getOneBook: (req, res) => {
         let id = req.params.id
@@ -121,6 +139,7 @@ module.exports = {
                 console.error(err)
                 return responses.getDataResponse(res, 200, err)
             })
-    }
+    },
+    uploadPhoto: (req, res) => {}
 
 }

@@ -1,4 +1,5 @@
 const conn = require('../configs/db')
+// import { uploader, cloudinaryConfig } from './src/configs/cloudinaryConfig'
 let table = `SELECT book_id, title, description, image, date_released, genre_name AS genre, availability 
             FROM book
             JOIN genre
