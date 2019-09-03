@@ -2,18 +2,22 @@ const transactionModel = require('../models/transaction')
 const bookModel = require('../models/book')
 const response = require('../helpers/responses')
 
+//index => book status: (0 = Borrowed, 1 = Available, 2 = Requested to rent by user, 3 = Requested to return by user)
+
 module.exports = {
     rentBookByUser: (req, res) => {
-        //if book is available then user can request to admin to rent book then set available to 2(pending)
         const transData = {
             user_id: req.body.user_id,
             book_id: req.body.book_id
         }
 
+        //if book is available then user can request to admin to rent book then set available to 2(pending)
         bookModel.getAvailability(transData.book_id)
             .then(result => {
                 if (result[0].availability == '1') {
                     return bookModel.setAvailability(transData.book_id, 2)
+                } else if (result[0].availability == '2') {
+                    return response.getDataResponse(res, 401, `Sorry this book is already requested to rent!`)
                 }
             })
             .then(result => {
@@ -69,18 +73,53 @@ module.exports = {
             bill: req.body.bill || 0,
             return_date: new Date()
         }
+        //parameter decline/accept by admin
+        const adminInput = req.body.admin_input
+
+        //if admin accepted the request then book is available again (set availability to 1 and add transaction detail), if not then status book change to 0
+        if(adminInput == '0') {
+            bookModel.setAvailability(data.book_id, 0)
+                .then(result => {
+                    return response.dataResponseEdit(res, 200, `You rejected request to return the book!`)
+                })
+                .catch(err => {
+                    console.error(err)
+                    return response.dataResponseEdit(res, 500, 'Failed to request this book!', err)
+                })
+        } else if (adminInput == '1'){
+            transactionModel.getLatestRent(data.book_id)
+                .then(result => {
+                    if( result.length !== 0 ) {
+                        return Promise.all([
+                            transactionModel.returnBook(result[0].trans_id, data),
+                            bookModel.setAvailability(data.book_id, 1)
+                        ])
+                    } else {
+                        return response.dataResponseEdit(res, 200, 'Book has been already returned!')
+                    }
+                })
+                .then(result => response.dataResponseEdit(res, 200, 'Succes returning book!', data))
+                .catch(error => {
+                    console.error(error)
+                    return response.dataResponseEdit(res, 500, 'Failed to return book!', error)
+                })
+        }
+    },
+    returnBookByUser: (req, res) => {
+        const data = {
+            book_id: req.body.book_id,
+        }
+
+        //if book availability is 0 then user can request to return book(set availability to 3)
         transactionModel.getLatestRent(data.book_id)
             .then(result => {
                 if( result.length !== 0 ) {
-                    return Promise.all([
-                        transactionModel.returnBook(result[0].trans_id, data),
-                        bookModel.setAvailability(data.book_id, 1)
-                    ])
+                    return bookModel.setAvailability(data.book_id, 3)
                 } else {
                     return response.dataResponseEdit(res, 200, 'Book has been already returned!')
                 }
             })
-            .then(result => response.dataResponseEdit(res, 200, 'Succes returning book!', data))
+            .then(result => response.dataResponseEdit(res, 200, 'Succes to request returning book!', data))
             .catch(error => {
                 console.error(error)
                 return response.dataResponseEdit(res, 500, 'Failed to return book!', error)
