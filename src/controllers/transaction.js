@@ -8,16 +8,23 @@ module.exports = {
     rentBookByUser: (req, res) => {
         const transData = {
             user_id: req.body.user_id,
-            book_id: req.body.book_id
+            book_id: req.body.book_id,
+            rent_date: new Date(),
+            book_status: 'pending',
         }
 
         //if book is available then user can request to admin to rent book then set available to 2(pending)
         bookModel.getAvailability(transData.book_id)
             .then(result => {
                 if (result[0].availability == '1') {
-                    return bookModel.setAvailability(transData.book_id, 2)
+                    return Promise.all([
+                        transactionModel.insertTrans(transData),
+                        bookModel.setAvailability(transData.book_id, 2)
+                    ])
                 } else if (result[0].availability == '2') {
                     return response.getDataResponse(res, 401, `Sorry this book is already requested to rent!`)
+                } else if (result[0].availability == '3') {
+                    return response.getDataResponse(res, 401, `This book is requested to return! Come next time`)
                 }
             })
             .then(result => {
@@ -32,7 +39,9 @@ module.exports = {
         const transData = {
             user_id: req.body.user_id,
             book_id: req.body.book_id,
-            rent_date: new Date()
+        }
+        const userTrans = {
+            book_status: 'rented'
         }
         //parameter decline/accept
         const adminInput = req.body.admin_input
@@ -51,8 +60,9 @@ module.exports = {
                 .then(result => {
                     if (result[0].availability == '2') {
                         return Promise.all([
-                            transactionModel.insertTrans(transData),
-                            bookModel.setAvailability(transData.book_id, 0)
+                            transactionModel.getLatestRent(transData.book_id)
+                            .then(result => transactionModel.returnBook(result[0].trans_id, userTrans)),
+                            bookModel.setAvailability(transData.book_id, 0),
                         ])
                     } else {
                         return response.dataResponseEdit(res, 200, 'Book is not available yet!')
@@ -71,7 +81,8 @@ module.exports = {
         const data = {
             book_id: req.body.book_id,
             bill: req.body.bill || 0,
-            return_date: new Date()
+            return_date: new Date(),
+            book_status: 'returned'
         }
         //parameter decline/accept by admin
         const adminInput = req.body.admin_input
@@ -104,26 +115,6 @@ module.exports = {
                     return response.dataResponseEdit(res, 500, 'Failed to return book!', error)
                 })
         }
-    },
-    returnBookByUser: (req, res) => {
-        const data = {
-            book_id: req.body.book_id,
-        }
-
-        //if book availability is 0 then user can request to return book(set availability to 3)
-        transactionModel.getLatestRent(data.book_id)
-            .then(result => {
-                if( result.length !== 0 ) {
-                    return bookModel.setAvailability(data.book_id, 3)
-                } else {
-                    return response.dataResponseEdit(res, 200, 'Book has been already returned!')
-                }
-            })
-            .then(result => response.dataResponseEdit(res, 200, 'Succes to request returning book!', data))
-            .catch(error => {
-                console.error(error)
-                return response.dataResponseEdit(res, 500, 'Failed to return book!', error)
-            })
     },
     getAllBorrowing: (req, res) => {
         let keyword = req.query.search
