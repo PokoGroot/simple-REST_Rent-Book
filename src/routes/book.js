@@ -9,6 +9,7 @@ Route
     .get('/', BookController.getAll)
     .get('/:id', BookController.getOneBook)
     .post('/', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, multer.multerUploads, BookController.addBook)
+    .post('/user', Auth.verifyTokenMiddleware, multer.multerUploads, BookController.donateBook)
     .patch('/:id', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, BookController.updateBook)
     .delete('/:id', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, BookController.deleteBook)
     .get('/y/year', BookController.getYearBook)

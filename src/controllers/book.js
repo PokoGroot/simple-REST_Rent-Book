@@ -3,6 +3,7 @@ const responses = require('../helpers/responses')
 const multer = require('../middleware/multer')
 const cloudinaryConfig = require('../configs/cloudinaryConfig')
 
+// status (book) => (accepted, pending)
 module.exports = {
     getAll: (req, res) => {
         const keyword = req.query.search
@@ -40,7 +41,8 @@ module.exports = {
                         image: result.url,
                         date_released: req.body.date_released,
                         genre_id: req.body.genre_id,
-                        availability: req.body.availability
+                        availability: req.body.availability,
+                        status: 'accepted',
                     }
                     modelBook.addBook(data)
                         .then(result => {
@@ -60,6 +62,44 @@ module.exports = {
                 }))
         }
     },
+    donateBook : (req, res) => {
+        const imageData = {
+            image: req.file
+        }
+        if(imageData.image) {
+            const file = multer.dataUri(req).content
+    
+            return cloudinaryConfig.uploader.upload(file)
+                .then((result) => {
+                    const data = {
+                        title: req.body.title,
+                        description: req.body.description,
+                        image: result.url,
+                        date_released: req.body.date_released,
+                        genre_id: req.body.genre_id,
+                        availability: 1,
+                        status: 'pending',
+                    }
+                    modelBook.addBook(data)
+                        .then(result => {
+                            // data.id = id
+                            return responses.dataResponseEdit(res, 201, 'Success inserting data', data)
+                        })
+                        .catch(err => {
+                            console.error(err)
+                            return responses.dataResponseEdit(res, 500, 'Failed to insert data', err)
+                        })
+                })
+                .catch((err) => res.status(400).json({
+                    messge: 'someting went wrong while processing your request',
+                    data: {
+                        err
+                    }
+                }))
+        }
+    },
+    bookDonateAgreed: (req, res) => {},
+    bookDonateRejected: (req, res) => {},
     getOneBook: (req, res) => {
         let id = req.params.id
 
