@@ -32,6 +32,7 @@ module.exports = {
     returnBook: (req, res) => {
         const data = {
             book_id: req.body.book_id,
+            bill: req.body.bill || 0,
             return_date: new Date()
         }
         transactionModel.getLatestRent(data.book_id)
