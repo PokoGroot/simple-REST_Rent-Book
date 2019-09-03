@@ -41,6 +41,19 @@ module.exports = {
             })
         })
     },
+    //get all pending book
+    pendingDonatedBook: () => {
+        return new Promise((resolve, reject) => {
+            conn.query(` SELECT * FROM book WHERE book.status = 'pending' `,
+            (err, result) => {   
+                if (!err) {
+                    resolve(result)
+                } else {
+                    reject(err)
+                }
+            })
+        })
+    },
     //add book to db
     addBook: (data) => {
         return new Promise((resolve, reject) => {

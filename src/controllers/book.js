@@ -26,6 +26,17 @@ module.exports = {
                 return responses.getDataResponse(res, 500, err)
             })
     },
+    pendingDonatedBook: (req, res) => {
+        modelBook.pendingDonatedBook()
+            .then(result => {
+                if (result.lenght != 0) return responses.getDataResponse(res, 200, result, result.length)
+                else return responses.getDataResponse(res, 200, null, null, null, 'Book not found!')
+            })
+            .catch(err => {
+                console.error(err)
+                return responses.getDataResponse(res, 500, err)
+            })
+    },
     addBook: (req, res) => {
         const imageData = {
             image: req.file
@@ -42,6 +53,7 @@ module.exports = {
                         date_released: req.body.date_released,
                         genre_id: req.body.genre_id,
                         availability: req.body.availability,
+                        rating: req.body.rating,
                         status: 'accepted',
                     }
                     modelBook.addBook(data)
@@ -78,6 +90,7 @@ module.exports = {
                         date_released: req.body.date_released,
                         genre_id: req.body.genre_id,
                         availability: 1,
+                        rating: req.body.rating,
                         status: 'pending',
                     }
                     modelBook.addBook(data)
@@ -98,8 +111,6 @@ module.exports = {
                 }))
         }
     },
-    bookDonateAgreed: (req, res) => {},
-    bookDonateRejected: (req, res) => {},
     getOneBook: (req, res) => {
         let id = req.params.id
 
