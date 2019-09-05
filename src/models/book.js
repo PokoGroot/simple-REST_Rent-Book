@@ -17,7 +17,7 @@ module.exports = {
             const yearIsNotNull = year != null
             let query = table
 
-            if(availabilityIsNotNull || keywordIsNotNull || sortIsNotNull || genreIsNotNull || yearIsNotNull){
+            if(availabilityIsNotNull || keywordIsNotNull || genreIsNotNull || yearIsNotNull){
                 query += availabilityIsNotNull || keywordIsNotNull || genreIsNotNull || yearIsNotNull ? `WHERE `:``
                 query += yearIsNotNull ? `YEAR(date-released) = ${year} ` : ``
                 query += yearIsNotNull && genreIsNotNull || yearIsNotNull && availabilityIsNotNull || yearIsNotNull && keywordIsNotNull || genreIsNotNull && availabilityIsNotNull || genreIsNotNull && keywordIsNotNull ? `AND `:``
@@ -26,9 +26,14 @@ module.exports = {
                 query += availabilityIsNotNull ? `availability = ${availability} `:``
                 query += availabilityIsNotNull && keywordIsNotNull ? `AND `:``
                 query += keywordIsNotNull ? `title LIKE '%${keyword}%' `:''
+            }
+
+            query += `AND status = 'accepted'`
+
+            if(sortIsNotNull) {
                 query += sortIsNotNull ? `ORDER BY ${sort} `:''
                 query += orderIsNotNull && sortIsNotNull ? order:''
-            }                
+            }
 
             conn.query(`${query} LIMIT ?, ?`,
             [dataBegin, pageLimit],

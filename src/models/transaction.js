@@ -100,5 +100,19 @@ module.exports = {
                 }
             })
         })
-    }
+    },
+    getBorrowingsHistoryByUserId: (id) => {
+        return new Promise((resolve, reject) => {
+            conn.query('select borrowings.*, `books`.`id` AS `id`,`books`.`title` AS `title`,`books`.`description` AS `description`,`books`.`image` AS `image`,`books`.`date_released` AS `date_released`,`books`.`availability` AS `availability`,`genres`.`id` AS `genre_id`,`genres`.`name` AS `genre` from `books` join `genres` on`books`.`genre_id` = `genres`.`id` join borrowings on borrowings.book_id = books.id WHERE borrowings.user_id = ?', id, (err, result) => {
+                if (err) { reject(err) } else { resolve(result) }
+            })
+        })
+    },
+    getBorrowingRequests: () => {
+        return new Promise((resolve, reject) => {
+            conn.query('SELECT borrowings.*, books.title, users.username FROM borrowings JOIN books ON borrowings.book_id = books.id JOIN users ON users.id = borrowings.user_id WHERE is_confirmed = 0', (err, result) => {
+                if (err) { reject(err) } else { resolve(result) }
+            })
+        })
+    },
 }

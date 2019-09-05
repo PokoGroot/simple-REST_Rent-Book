@@ -155,5 +155,5 @@ module.exports = {
                 console.error(err)
                 return response.dataResponseEdit(res, 200, 'Failed to delete borrowing data', err)
             })
-    }
+    },
 }
