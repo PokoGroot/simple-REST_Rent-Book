@@ -2,7 +2,7 @@ const transactionModel = require('../models/transaction')
 const bookModel = require('../models/book')
 const response = require('../helpers/responses')
 
-//index => book status: (0 = Borrowed, 1 = Available, 2 = Requested to rent by user, 3 = Requested to return by user)
+//index => book availability: (0 = Borrowed, 1 = Available, 2 = Requested to rent by user, 3 = Requested to return by user)
 
 module.exports = {
     rentBookByUser: (req, res) => {
