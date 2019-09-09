@@ -43,7 +43,7 @@ module.exports = {
             .then(result => {
                 if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
             })
-            .catch(error =. {
+            .catch(error => {
                 console.error(error)
                 return response.getDataResponse(res, 500, error)
             })
@@ -176,7 +176,7 @@ module.exports = {
             .then(result => {
                 if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
             })
-            .catch(error =. {
+            .catch(error => {
                 console.error(error)
                 return response.getDataResponse(res, 500, error)
             })
