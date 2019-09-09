@@ -41,7 +41,7 @@ module.exports = {
 
         transactionModel.getHistoryBookByUserId(id)
             .then(result => {
-                if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
+                if (result.length != 0) return response.getDataResponse(res, 200, result, result.length)
             })
             .catch(error => {
                 console.error(error)
@@ -174,7 +174,7 @@ module.exports = {
     getRentRequestsByUser: (req, res) => {
         transactionModel.getRentRequestsByUser()
             .then(result => {
-                if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
+                return response.getDataResponse(res, 200, result, result.length)
             })
             .catch(error => {
                 console.error(error)

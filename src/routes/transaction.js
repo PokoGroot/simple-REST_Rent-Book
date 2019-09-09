@@ -12,7 +12,7 @@ Route
     .patch('/', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, TransactionController.returnBook)
     .delete('/:id', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.deleteBorrowing)
     .get('/', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.getAllBorrowing)
-    .get('/:id', Auth.verifyTokenMiddleware,Auth.verifyAdminPrevilege, TransactionController.getOneBorrowing)
-    .get('request', Auth.verifyAdminPrevilege, Auth.verifyAdminPrevilege, TransactionController.getRentRequestsByUser)
+    .get('/request', Auth.verifyTokenMiddleware, Auth.verifyAdminPrevilege, TransactionController.getRentRequestsByUser)
+    .get('/history/:id', Auth.verifyTokenMiddleware, TransactionController.getHistoryBookByUserId)
 
 module.exports = Route
