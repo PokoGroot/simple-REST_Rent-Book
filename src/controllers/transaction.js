@@ -5,6 +5,7 @@ const response = require('../helpers/responses')
 //index => book availability: (0 = Borrowed, 1 = Available, 2 = Requested to rent by user, 3 = Requested to return by user)
 
 module.exports = {
+    //User Priviledge
     rentBookByUser: (req, res) => {
         const transData = {
             user_id: req.body.user_id,
@@ -35,6 +36,19 @@ module.exports = {
                 return response.dataResponseEdit(res, 500, 'Failed to request this book!', err)
             })
     },
+    getHistoryBookByUserId: (req, res) => {
+        let id = req.params.id
+
+        transactionModel.getHistoryBookByUserId(id)
+            .then(result => {
+                if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
+            })
+            .catch(error =. {
+                console.error(error)
+                return response.getDataResponse(res, 500, error)
+            })
+    },
+    //Admin Priviledge
     rentBook: (req, res) => {
         const transData = {
             user_id: req.body.user_id,
@@ -116,6 +130,7 @@ module.exports = {
                 })
         }
     },
+    //Using for admin to get all book request and history
     getAllBorrowing: (req, res) => {
         let keyword = req.query.search
         let sort = req.query.sortby

@@ -191,6 +191,6 @@ module.exports = {
                 return responses.getDataResponse(res, 200, err)
             })
     },
-    uploadPhoto: (req, res) => {}
+    // uploadPhoto: (req, res) => {}
 
 }
