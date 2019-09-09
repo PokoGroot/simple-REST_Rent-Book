@@ -171,4 +171,14 @@ module.exports = {
                 return response.dataResponseEdit(res, 200, 'Failed to delete borrowing data', err)
             })
     },
+    getRentRequestsByUser: (req, res) => {
+        transactionModel.getRentRequestsByUser()
+            .then(result => {
+                if (result.length != 0) return response.getDataResponse(res, 200, result, result.length, page)
+            })
+            .catch(error =. {
+                console.error(error)
+                return response.getDataResponse(res, 500, error)
+            })
+    }
 }

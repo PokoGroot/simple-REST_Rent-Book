@@ -110,9 +110,10 @@ module.exports = {
             })
         })
     },
-    getBorrowingRequests: () => {
+    getRentRequestsByUser: () => {
         return new Promise((resolve, reject) => {
-            conn.query('SELECT borrowings.*, books.title, users.username FROM borrowings JOIN books ON borrowings.book_id = books.id JOIN users ON users.id = borrowings.user_id WHERE is_confirmed = 0', (err, result) => {
+            conn.query(`SELECT book.title, transaction.*, user.username FROM transaction JOIN book ON transaction.book_id = book.book_id JOIN user ON user.user_id = transaction.user_id WHERE book_status = 'pending'`,
+            (err, result) => {
                 if (err) { reject(err) } else { resolve(result) }
             })
         })
